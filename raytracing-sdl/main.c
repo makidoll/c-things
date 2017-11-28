@@ -1,8 +1,11 @@
 #include <stdio.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 
 #define RENDER_SIZE 128
 #define WINDOW_SIZE 512
+
+#define PI 3.1415
 
 #define TITLE "Maki learns Raytracing"
 
@@ -35,8 +38,6 @@ void init(Game* game) {
 		}
 	}
 
-	game->screen[1][1] = 1;
-
 	game->state = 1;
 	game->size = WINDOW_SIZE/RENDER_SIZE;
 }
@@ -48,17 +49,20 @@ void render(Game* game) {
 	for (int y=0; y<RENDER_SIZE; ++y) {
 		for (int x=0; x<RENDER_SIZE; ++x) {
 
-			// int uv = [
-			// 	x/(RENDER_SIZE/2)-1,
-			// 	y/(RENDER_SIZE/2)-1
-			// ];
+			float uv[2] = {
+				x/(RENDER_SIZE/2)-1,
+				y/(RENDER_SIZE/2)-1
+			};
 
-			if (game->screen[x][y] >= 1) {
+			float d = 128;
+
+			SDL_SetRenderDrawColor(game->renderer, d,d,d,255);
+			//if (game->screen[x][y] >= 1) {
 				SDL_Rect rect;
 				rect.x = x*game->size; rect.y = y*game->size;
 				rect.w = rect.h = game->size;
 				SDL_RenderFillRect(game->renderer, &rect);
-			}
+			//}
 		}
 	}
 
