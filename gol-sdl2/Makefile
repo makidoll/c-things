@@ -1,6 +1,6 @@
 CC = gcc	
 FLAGS = -Wall -lSDL2main -lSDL2
-OUT = game
+OUT = gol-sdl2
 
 all: main.c
 	$(CC) main.c $(FLAGS) -o $(OUT)

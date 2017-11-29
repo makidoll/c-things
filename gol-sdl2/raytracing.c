@@ -5,9 +5,7 @@
 #define RENDER_SIZE 128
 #define WINDOW_SIZE 512
 
-#define PI 3.1415
-
-#define TITLE "Maki learns Raytracing"
+#define TITLE "Maki learns SDL and Raytracing"
 
 typedef struct {
 	SDL_Window* window;
@@ -18,6 +16,18 @@ typedef struct {
 	int state; // 0 is off, 1 is on
 	int size;
 } Game;
+
+// typedef struct {
+// 	float x;
+// 	float y;
+// } Vec2;
+
+// Vec2 vec2(float x, float y) {
+// 	Vec2 v;
+// 	v.x = x;
+// 	v.y = y;
+// 	return v;
+// }
 
 void init(Game* game) {
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -46,23 +56,17 @@ void render(Game* game) {
 	SDL_SetRenderDrawColor(game->renderer, 0,0,0,255);
 	SDL_RenderClear(game->renderer);
 	SDL_SetRenderDrawColor(game->renderer, 255,255,255,255);
+
+	//Vec2 uv;
+
 	for (int y=0; y<RENDER_SIZE; ++y) {
 		for (int x=0; x<RENDER_SIZE; ++x) {
-
-			float uv[2] = {
-				x/(RENDER_SIZE/2)-1,
-				y/(RENDER_SIZE/2)-1
-			};
-
-			float d = 128;
-
-			SDL_SetRenderDrawColor(game->renderer, d,d,d,255);
-			//if (game->screen[x][y] >= 1) {
+			if (game->screen[x][y] >= 1) {
 				SDL_Rect rect;
 				rect.x = x*game->size; rect.y = y*game->size;
 				rect.w = rect.h = game->size;
 				SDL_RenderFillRect(game->renderer, &rect);
-			//}
+			}
 		}
 	}
 
