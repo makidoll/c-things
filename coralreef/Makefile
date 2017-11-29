@@ -1,5 +1,7 @@
 CC = gcc
-FLAGS = -Wall -lSDL2main -lSDL2
+CFLAGS = -Wall
+LDFLAGS = -lSDL2main -lSDL2
+FLAGS = $(CFLAGS) $(LDFLAGS)
 
 OUT = coralreef
 
@@ -9,7 +11,9 @@ all: main.c vectors.o
 vectors.o: vectors.c vectors.h
 	$(CC) -c vectors.c $(FLAGS)
 
-build: clean all
+# extra
+
+run: all
 	./$(OUT)
 
 clean:

@@ -1,17 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 #include "vectors.h"
 
 #define TITLE "Maki's Coralreef"
-#define WIDTH 32
-#define HEIGHT 32
-#define SIZE 12
+#define WIDTH 16
+#define HEIGHT 16
+#define SIZE 24
 
 #define UPDATE 1000/60
 
+#define ROOT_MAX 256
+
 #define FOOD_MAX 16
-#define FOOD_SPAWN 1
+#define FOOD_SPAWN 8
 // Modulo with frame; set to 1 to prove FOOD_MAX works.
 // I actually started smiling when I saw how little CPU
 // and memory this program uses. AAH I </3 JS and <3 C.
@@ -19,7 +23,7 @@
 typedef struct {
 	int alive;
 	Vec2 pos;
-} Food;
+} Cell;
 
 typedef struct {
 	SDL_Window* window;
@@ -29,12 +33,27 @@ typedef struct {
 	int state;
 	int frame;
 
-	Food food[FOOD_MAX];
+	Cell food[FOOD_MAX];
+	Cell root[ROOT_MAX];
 } Game;
+
+void reset(Game* game) {
+	for (int i=0; i<FOOD_MAX; i++) {
+		game->food[i].alive = 0;
+	}
+
+	for (int i=0; i<ROOT_MAX; i++) {
+		game->root[i].alive = 0;
+	}
+
+	game->root[0].alive = 1;
+	game->root[0].pos = vec2(WIDTH/2, HEIGHT-1);
+}
 
 void initGame(Game* game) {
 
 	SDL_Init(SDL_INIT_EVERYTHING);
+	srand(time(NULL));
 
 	game->window = SDL_CreateWindow(
 		TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -49,9 +68,7 @@ void initGame(Game* game) {
 	game->state = 1;
 	game->frame = 0;
 
-	for (int i=0; i<FOOD_MAX; i++) {
-		game->food[i].alive = 0;
-	}
+	reset(game);
 }
 
 void drawGame(Game* game) {
@@ -69,6 +86,19 @@ void drawGame(Game* game) {
 		}
 	}
 
+	for (int i=0; i<ROOT_MAX; i++) {
+		if (game->root[i].alive) {
+			SDL_SetRenderDrawColor(game->renderer, 255,119,168,255);
+			SDL_Rect rect;
+			rect.x = game->root[i].pos.x*SIZE;
+			rect.y = game->root[i].pos.y*SIZE;
+			rect.w = rect.h = SIZE;
+			SDL_RenderFillRect(game->renderer, &rect);
+		} else {
+			break;
+		}
+	}
+
 	SDL_RenderPresent(game->renderer);
 }
 
@@ -76,7 +106,7 @@ void spawnFood(Game* game) {
 	for (int i=0; i<FOOD_MAX; i++) {
 		if (game->food[i].alive == 0) {
 			game->food[i].alive = 1;
-			game->food[i].pos = vec2(2, 2);
+			game->food[i].pos = vec2(rand()%WIDTH, 0);
 			break;
 		}
 	}
@@ -89,22 +119,31 @@ void updateFood(Game* game) {
 		// See, I'm programming without the Internet
 		// and... OH WAIT!! I HAVE THE C PROGRAMMING
 		// LANGUAGE in PDF but actually I'll just ask
-		// CODE MEISTER Tazzo, my Yukie lover...
+		// CODE MEISTER Tazzo, the Yukie lover...
 		//Vec2 f = game->food[i];
-		// End me...
+		// End my life...
 
 		// Move food
-		game->food[i].pos.y++;
 
-		// Kill food (ahem pointer pls)
+		if (rand()%10 < 6) {
+			game->food[i].pos.y++;
+		}
+
+		if (rand()%10 < 2) {
+			if (rand()%10 < 5) {	
+				game->food[i].pos.x++;
+			} else {
+				game->food[i].pos.x--;
+			}
+		}
+
+		// Kill food (ahem pointer needed much pls)
 		if (
 			game->food[i].pos.x < 0 || game->food[i].pos.x >= WIDTH ||
 			game->food[i].pos.y < 0 || game->food[i].pos.y >= HEIGHT
 		) {
 			game->food[i].alive = 0;
 		}
-
-		// 
 	}
 
 }
@@ -117,21 +156,75 @@ int countFood(Game* game) {
 	return f;
 }
 
+int countRoot(Game* game) {
+	int r = 0;
+	for (int i=0; i<ROOT_MAX; i++) {
+		r += game->root[i].alive;
+	}
+	return r;
+}
+
+void addRoot(Game* game, Vec2 v) {
+	for (int i=0; i<ROOT_MAX; i++) {
+		if (game->root[i].alive == 0) {
+			game->root[i].alive = 1;
+			game->root[i].pos = v;
+			break;
+		}
+	}
+}
+
+void updateRoot(Game* game) {
+
+	for (int r=0; r<ROOT_MAX; r++) {
+		// If not alive
+		if (game->root[r].alive == 1) {
+
+			// Check if at top
+			if (game->root[r].pos.y < 2) {
+				reset(game);
+				break;
+			}
+
+			// Check all foods for collision
+			for (int f=0; f<FOOD_MAX; f++) {
+				if (game->food[f].alive && (
+					(game->food[f].pos.x == game->root[r].pos.x-1 &&
+					game->food[f].pos.y == game->root[r].pos.y)
+						||
+					(game->food[f].pos.x == game->root[r].pos.x+1 &&
+					game->food[f].pos.y == game->root[r].pos.y)
+						||
+					(game->food[f].pos.x == game->root[r].pos.x &&
+					game->food[f].pos.y == game->root[r].pos.y-1)
+				)) {
+					game->food[f].alive = 0;
+					addRoot(game, game->food[f].pos);
+				}
+			}
+		} else {
+			break;
+		}
+	}
+}
+
 void updateGame(Game* game) {
 
-	// Updating food
+	// Food
 	updateFood(game);
-
-	// Spawn food
 	if (game->frame % FOOD_SPAWN == 0) {
 		spawnFood(game);
 	}
+
+	// Root
+	updateRoot(game);
 
 	// Drawing and debug
 	drawGame(game);
 	printf("\033[2J\n");
 	printf("Frame: %d\n", game->frame); 
 	printf("Foods: %d\n", countFood(game)); 
+	printf("Roots: %d\n", countRoot(game)); 
 
 	// SDL Event
 	SDL_PollEvent(&game->event);
@@ -143,6 +236,9 @@ void updateGame(Game* game) {
 	switch(game->event.key.keysym.sym) {
 		case SDLK_ESCAPE:
 			game->state = 0;
+			break;
+		case SDLK_SPACE:
+			reset(game);
 			break;
 	}
 
