@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>
 #include <SDL2/SDL.h>
 #include "vectors.h"
+
+#ifdef _WIN32
+	#include <windows.h> // Sleep
+#else
+	#include <unistd.h> // usleep
+#endif
 
 #define TITLE "Maki's Coralreef"
 #define WIDTH 16
@@ -247,11 +252,15 @@ void updateGame(Game* game) {
 	//SDL_SetWindowTitle(game->window, title);
 	
 	++game->frame;
-	usleep(UPDATE*1000);
+	#ifdef _WIN32
+		Sleep(UPDATE);
+	#else
+		usleep(UPDATE*1000);
+	#endif
 	if (game->state > 0) updateGame(game);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 
 	Game game;
 	initGame(&game);
@@ -259,6 +268,6 @@ int main() {
 	updateGame(&game);
 
 	SDL_DestroyWindow(game.window);
-    SDL_Quit();
-    return 0;
+	SDL_Quit();
+	return 0;
 }

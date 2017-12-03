@@ -1,7 +1,14 @@
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -std=c99
 LDFLAGS = -lSDL2main -lSDL2
 FLAGS = $(CFLAGS) $(LDFLAGS)
+
+ifeq ($(OS),Windows_NT)
+WINCLUDE = -IC:\MinGW\include
+WLIBRARY = -LC:\MinGW\lib
+WFLAGS = -lmingw32 -Wl,-subsystem,windows -lSDL2main -lSDL2
+FLAGS = $(WINCLUDE) $(WLIBRARY) $(CFLAGS) $(WFLAGS)
+endif
 
 OUT = coralreef
 
