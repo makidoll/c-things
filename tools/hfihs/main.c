@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
 		int page = atoi(argv[1]);
 		int current = page-P_START;
 		int last = P_END-P_START;	
-		float percent = (float)current/last*100;
+		float percent = (float)current/(float)last*100.0;
 		printf("%4.2f%% complete! (%d/%d)\n", percent, current, last);
 	}
 
