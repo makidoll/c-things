@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
 		int current = page-P_START;
 		int last = P_END-P_START;	
 		float percent = (float)current/last*100;
-		printf("%3.1f%% complete! (%d/%d)\n", percent, current, last);
+		printf("%4.2f%% complete! (%d/%d)\n", percent, current, last);
 	}
 
 	return 0;
