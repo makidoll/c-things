@@ -1,6 +1,6 @@
 CC = gcc
-FLAGS = -Wall -lcurl
-OUT = 4chan
+FLAGS = -Wall
+OUT = hfihs
 
 all: main.c
 	$(CC) main.c $(FLAGS) -o $(OUT)
