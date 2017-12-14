@@ -1,14 +1,9 @@
 CC = gcc
-OBJS = main.c 
-CFLAGS = -Wall -c
-LDFLAGS = -lncurses
+FLAGS = -Wall -lncurses
 OUT = snake
 
-all: main.o
-	$(CC) main.o $(LDFLAGS) -o $(OUT)
+all: main.c
+	$(CC) main.c $(FLAGS) -o $(OUT)
 
-main.o: main.c
-	$(CC) $(CFLAGS) $(OBJS) -o main.o
-
-clean: 
-	rm -f *.o
+run: all
+	./$(OUT)
