@@ -1,25 +1,22 @@
+#include <stdio.h>
+#include "game.h"
 #include "text.h"
 
 int split(int num) {
-	
-
-	return arr;
-} 
-
-
-void printNum(Game* game, int x, int y, int num) {
-
 	int len = 0;
 	for (int n=num; n>0; n/=10) len++;
 
-	int arr[len]; len = 0;
+	int arr[len]; int index = 0;
 	for (int n=num; n>0; n/=10) {
-		arr[len] = n%10;
-		len++;
+		arr[len-index] = n%10;
+		index++;
 	}
 
-	for (int i=0; i<len; ++i) {
+	return *arr;
+}
 
-	}
+void printNum(Game* game, int x, int y, int num) {
+
+	printf("%d\n", num);
 
 }

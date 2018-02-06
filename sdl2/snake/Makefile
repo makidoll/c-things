@@ -5,8 +5,11 @@ OUT = snake
 all: main.c game.o
 	$(CC) main.c game.o $(FLAGS) -o $(OUT)
 
-game.o: game.c game.h
-	$(CC) -c game.c $(FLAGS) 
+game.o: game.c game.h text.o
+	$(CC) -c game.c text.o $(FLAGS) 
+
+text.o: text.c text.h
+	$(CC) -c text.c $(FLAGS) 
 
 # Extra
 
@@ -15,3 +18,5 @@ clean:
 
 run: all
 	./$(OUT)
+
+fresh: clean all

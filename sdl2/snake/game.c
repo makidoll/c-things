@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <SDL2/SDL.h>
 
-#include "game.h"
 #include "settings.h"
+#include "game.h"
+#include "text.h"
 
 void init(Game* game) {
 
@@ -86,6 +87,8 @@ void update(Game* game) {
 	// Drawing!
 	clearScreen(game);
 	game->screen[game->x][game->y] = 1;
+	printNum(game, 0, 0, 1);
+
 	draw(game);
 }
 
