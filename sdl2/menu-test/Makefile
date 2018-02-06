@@ -7,3 +7,6 @@ all: main.c
 
 run: all
 	./$(OUT)
+
+clean:
+	rm -f $(OUT) 

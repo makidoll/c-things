@@ -1,4 +1,4 @@
-CC = gcc	
+CC = gcc
 FLAGS = -Wall -lSDL2main -lSDL2
 OUT = gol-sdl2
 
@@ -7,3 +7,6 @@ all: main.c
 
 taz: taz.c
 	$(CC) taz.c $(FLAGS) -o $(OUT)
+
+clean:
+	rm -f $(OUT) 

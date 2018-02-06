@@ -1,10 +1,12 @@
 CC = gcc
 LINKS = -lGL -lSDL2main -lSDL2
-FLAGS  = -Wall $(LINKS)
 OUT = shader-test
 
 all: main.c
-	$(CC) main.c $(FLAGS) -o $(OUT)
+	$(CC) main.c -Wall $(LINKS) -o $(OUT)
 
 run: all
 	./$(OUT)
+
+clean:
+	rm -f $(OUT)

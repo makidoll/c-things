@@ -1,9 +1,11 @@
 CC = gcc
-FLAGS = -Wall -lncurses
 OUT = snake
 
 all: main.c
-	$(CC) main.c $(FLAGS) -o $(OUT)
+	$(CC) main.c -Wall -lncurses -o $(OUT)
 
 run: all
 	./$(OUT)
+
+clean: 
+	rm -f $(OUT)
