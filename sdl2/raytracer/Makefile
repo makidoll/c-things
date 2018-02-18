@@ -1,5 +1,5 @@
 CC = gcc
-OUT = Maki's Raytracer
+OUT = raytracer
 
 LINKS = -lm -lSDL2main -lSDL2
 ifeq ($(OS),Windows_NT)
