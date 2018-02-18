@@ -1,5 +1,5 @@
 CC = gcc
-OUT = Raytracing
+OUT = Maki's Raytracer
 
 LINKS = -lm -lSDL2main -lSDL2
 ifeq ($(OS),Windows_NT)
@@ -7,7 +7,7 @@ ifeq ($(OS),Windows_NT)
 endif
 
 all: main.c
-	$(CC) main.c $(LINKS) -Wall -o $(OUT)
+	$(CC) main.c $(LINKS) -Wall -o "$(OUT)"
 
 run: all
-	./$(OUT)
+	"./$(OUT)"

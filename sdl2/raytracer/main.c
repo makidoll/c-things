@@ -14,7 +14,11 @@
 #define FOV 90
 
 #define GAME_MOVE_SPEED 8
+#define GAME_MOVE_DECELERATE 1.06
 #define GAME_MOUSE_SPEED 0.6
+
+#define GAME_BOBBLE 12
+#define GAME_BOBBLE_SPEED 1.2
 
 #define MAX_MAP_SIZE 64
 #define MATH_PI 3.14159
@@ -33,10 +37,12 @@ typedef struct {
 } Vec2f;
 
 typedef struct {
-	float x;
-	float y;
-	float a;
-	bool keyDown[4];
+	float x; float vx;
+	float y; float vy;
+	float a; 
+	float bobble_moved;
+	float bobble_amount;
+	char move[2];
 } Player;
 
 typedef struct {
@@ -64,6 +70,7 @@ typedef struct {
 	int state;
 	bool locked;
 
+	double time;
 	double dt;
 	clock_t dtc;
 } Game;
@@ -152,6 +159,7 @@ void initGame(Game* game) {
 
 		game->state = 1;
 		game->dt = 0;
+		game->time = 0;
 
 		game->locked = true;
 		SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -159,7 +167,12 @@ void initGame(Game* game) {
 		loadMap(game);
 		initMinimap(game);
 
-		memset(game->player.keyDown, 0, sizeof(bool)*4);
+		game->player.vx = 0;
+		game->player.vy = 0;
+		game->player.bobble_moved = 0;
+		game->player.bobble_amount = 0;
+
+		memset(game->player.move, 0, sizeof(char)*2);
 		game->player.a = MATH_PI*0.65;
 
 	} else {
@@ -266,7 +279,8 @@ void draw(Game* game) {
 
 		SDL_SetRenderDrawColor(game->renderer, 255-c, 255-c, 255-c, 255);
 		drawRect(game->renderer,
-			screen_x*WINDOW_SIZE, d_pos,
+			screen_x*WINDOW_SIZE, 
+			d_pos + game->player.bobble_amount*GAME_BOBBLE*WINDOW_SIZE,
 			WINDOW_SIZE,
 			(WINDOW_HEIGHT*WINDOW_SIZE)-d_pos*2
 		);
@@ -342,20 +356,19 @@ void update(Game* game) {
 			case SDL_KEYDOWN:
 				if (!game->locked) break;
 				switch(game->event.key.keysym.sym) {
-					case SDLK_w: game->player.keyDown[0] = true; break;
-					case SDLK_a: game->player.keyDown[1] = true; break;
-					case SDLK_s: game->player.keyDown[2] = true; break;
-					case SDLK_d: game->player.keyDown[3] = true; break;
-					//case SDLK_d: game->player.keyDown[3] = true; break;
+					case SDLK_w: game->player.move[0] =  1; break;
+					case SDLK_a: game->player.move[1] =  1; break;
+					case SDLK_s: game->player.move[0] = -1; break;
+					case SDLK_d: game->player.move[1] = -1; break;
 				}
 				break;
 
 			case SDL_KEYUP:
 				switch(game->event.key.keysym.sym) {
-					case SDLK_w: game->player.keyDown[0] = false; break;
-					case SDLK_a: game->player.keyDown[1] = false; break;
-					case SDLK_s: game->player.keyDown[2] = false; break;
-					case SDLK_d: game->player.keyDown[3] = false; break;
+					case SDLK_w: game->player.move[0] = 0; break;
+					case SDLK_a: game->player.move[1] = 0; break;
+					case SDLK_s: game->player.move[0] = 0; break;
+					case SDLK_d: game->player.move[1] = 0; break;
 					case SDLK_ESCAPE: 
 						if (game->locked) {
 							game->locked = false;
@@ -385,35 +398,53 @@ void update(Game* game) {
 	}
 
 	// player movement
-	if (game->player.keyDown[0]) {
-		game->player.x += sin(game->player.a)*game->dt*GAME_MOVE_SPEED;
-		game->player.y += cos(game->player.a)*game->dt*GAME_MOVE_SPEED;
-	}
+	if (game->player.move[0]||game->player.move[1]) {
+		Vec2f nv; nv.x = 0; nv.y = 0;
 
-	if (game->player.keyDown[1]) {
-		game->player.x += sin(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED;
-		game->player.y += cos(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED;
-		//game->player.a += game->dt*GAME_MOUSE_SPEED;
-	}
-
-	if (game->player.keyDown[2]) {
-		game->player.x -= sin(game->player.a)*game->dt*GAME_MOVE_SPEED;
-		game->player.y -= cos(game->player.a)*game->dt*GAME_MOVE_SPEED;
-	}
+		// forwards and backwards
+		if (game->player.move[0]) {
+			nv.x += sin(game->player.a)*game->dt*GAME_MOVE_SPEED*game->player.move[0];
+			nv.y += cos(game->player.a)*game->dt*GAME_MOVE_SPEED*game->player.move[0];
+		}
 	
-	if (game->player.keyDown[3]) {
-		game->player.x -= sin(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED;
-		game->player.y -= cos(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED;
-		//game->player.a -= game->dt*GAME_MOUSE_SPEED;
+		// sideways
+		if (game->player.move[1]) {
+			nv.x += sin(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED*game->player.move[1];
+			nv.y += cos(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED*game->player.move[1];
+			//game->player.a += game->dt*GAME_MOUSE_SPEED;
+		}
+
+		if (game->player.move[0]&&game->player.move[1]) {
+			Vec2f_multiply(&nv, 0.75);
+		}
+
+		game->player.vx = nv.x;
+		game->player.vy = nv.y;
+
+		game->player.bobble_moved += fabsf(nv.x)+fabsf(nv.y);
+		game->player.bobble_amount = sin(game->player.bobble_moved*GAME_BOBBLE_SPEED);
 	}
+
+	game->player.x += game->player.vx;
+	game->player.y += game->player.vy;
+
 
 	draw(game);
+
+	game->player.vx /= GAME_MOVE_DECELERATE;
+	game->player.vy /= GAME_MOVE_DECELERATE;
+
+	if (!game->player.move[0]&&!game->player.move[1]) {
+		game->player.bobble_amount /= GAME_MOVE_DECELERATE;
+		if (game->player.bobble_moved) game->player.bobble_moved = 0;
+	}
 
 	#ifdef _WIN32
 		game->dt = ((float)(clock()-game->dtc)/1000000.0F)*1000; 
 	#else
 		game->dt = ((float)(clock()-game->dtc)/1000000000.0F)*1000; 
 	#endif
+	game->time += game->dt;
 }
 
 int main (int argc, char* argv[]) {
