@@ -1,10 +1,14 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <SDL2/SDL.h>
+#ifdef _WIN32
+	#include <windows.h> // Sleep
+#else
+	#include <unistd.h> // usleep
+#endif
 
-#define WIDTH 128
-#define HEIGHT 128
-#define SIZE 4
+#define WIDTH 240
+#define HEIGHT 240
+#define SIZE 2
 #define UPDATE 1000/60
 #define TITLE "Maki learns SDL2 and does the Game of Life"
 
@@ -111,7 +115,11 @@ void update(Game* game) {
 	// Update again!
 	++game->frame;
 	//SDL_SetWindowTitle(game->window, TITLE);
-	usleep(UPDATE*1000);
+	#ifdef _WIN32
+		Sleep(UPDATE);
+	#else
+		usleep(UPDATE*1000);
+	#endif
 	if (game->state > 0) update(game);
 }
 

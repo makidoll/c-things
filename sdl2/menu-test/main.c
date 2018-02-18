@@ -113,7 +113,7 @@ void gameLoop(Game* game) {
 	clearScreen(game, 7);
 
 	if (game->state == 1) { // menu
-		addSprite(game, "spr/logo", 0, 0);
+		addSprite(game, "spr/logo", 1, 1);
 	}
 
 	drawGame(game);
