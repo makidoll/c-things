@@ -9,7 +9,9 @@ I've been using libraries such as Ncurses and SDL!
 
 ## Highlights
 
+```
 /ncurses/game-of-life
 /sdl2/coralreef
 /sdl2/game-of-life
 /sdl2/raytracer
+```
