@@ -7,3 +7,6 @@ all: main.c
 
 install: all
 	mv $(OUT) /usr/bin
+
+clean: 
+	rm -f $(OUT) 

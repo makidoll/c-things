@@ -1,9 +1,11 @@
 CC = gcc
-FLAGS = -Wall -lSDL2main -lSDL2
 OUT = candy-spiral
 
 all: main.c 
-	$(CC) main.c $(FLAGS) -o $(OUT)
+	$(CC) main.c -Wall -lSDL2main -lSDL2 -o $(OUT)
 
 run: all
 	./$(OUT)
+
+clean:
+	rm -f $(OUT)
