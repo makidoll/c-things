@@ -65,7 +65,7 @@ typedef struct {
 	bool locked;
 
 	double dt;
-	clock_t dt0, dt1;
+	clock_t dtc;
 } Game;
 
 void loadMap(Game* game) {
@@ -334,7 +334,7 @@ void draw(Game* game) {
 }
 
 void update(Game* game) {
-	game->dt0 = clock();
+	game->dtc = clock();
 
 	// events
 	while(SDL_PollEvent(&game->event)) {
@@ -409,8 +409,11 @@ void update(Game* game) {
 
 	draw(game);
 
-	game->dt1 = clock();
-	game->dt = ((float)(game->dt1-game->dt0)/1000000.0F)*1000; 
+	#ifdef _WIN32
+		game->dt = ((float)(clock()-game->dtc)/1000000.0F)*1000; 
+	#else
+		game->dt = ((float)(clock()-game->dtc)/1000000000.0F)*1000; 
+	#endif
 }
 
 int main (int argc, char* argv[]) {
