@@ -14,10 +14,11 @@
 #define FOV 90
 
 #define GAME_MOVE_SPEED 8
+#define GAME_SPRINT_SPEED 16
 #define GAME_MOVE_DECELERATE 1.06
 #define GAME_MOUSE_SPEED 0.6
 
-#define GAME_BOBBLE 12
+#define GAME_BOBBLE 8
 #define GAME_BOBBLE_SPEED 1.2
 
 #define MAX_MAP_SIZE 64
@@ -40,6 +41,7 @@ typedef struct {
 	float x; float vx;
 	float y; float vy;
 	float a; 
+	float speed;
 	float bobble_moved;
 	float bobble_amount;
 	char move[2];
@@ -169,6 +171,7 @@ void initGame(Game* game) {
 
 		game->player.vx = 0;
 		game->player.vy = 0;
+		game->player.speed = GAME_MOVE_SPEED;
 		game->player.bobble_moved = 0;
 		game->player.bobble_amount = 0;
 
@@ -360,6 +363,9 @@ void update(Game* game) {
 					case SDLK_a: game->player.move[1] =  1; break;
 					case SDLK_s: game->player.move[0] = -1; break;
 					case SDLK_d: game->player.move[1] = -1; break;
+					case SDLK_LSHIFT:
+						game->player.speed = GAME_SPRINT_SPEED;
+						break;
 				}
 				break;
 
@@ -369,6 +375,9 @@ void update(Game* game) {
 					case SDLK_a: game->player.move[1] = 0; break;
 					case SDLK_s: game->player.move[0] = 0; break;
 					case SDLK_d: game->player.move[1] = 0; break;
+					case SDLK_LSHIFT:
+						game->player.speed = GAME_MOVE_SPEED;
+						break;
 					case SDLK_ESCAPE: 
 						if (game->locked) {
 							game->locked = false;
@@ -403,19 +412,19 @@ void update(Game* game) {
 
 		// forwards and backwards
 		if (game->player.move[0]) {
-			nv.x += sin(game->player.a)*game->dt*GAME_MOVE_SPEED*game->player.move[0];
-			nv.y += cos(game->player.a)*game->dt*GAME_MOVE_SPEED*game->player.move[0];
+			nv.x += sin(game->player.a)*game->dt*game->player.speed*game->player.move[0];
+			nv.y += cos(game->player.a)*game->dt*game->player.speed*game->player.move[0];
 		}
 	
 		// sideways
 		if (game->player.move[1]) {
-			nv.x += sin(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED*game->player.move[1];
-			nv.y += cos(game->player.a+MATH_PI/2)*game->dt*GAME_MOVE_SPEED*game->player.move[1];
+			nv.x += sin(game->player.a+MATH_PI/2)*game->dt*game->player.speed*game->player.move[1];
+			nv.y += cos(game->player.a+MATH_PI/2)*game->dt*game->player.speed*game->player.move[1];
 			//game->player.a += game->dt*GAME_MOUSE_SPEED;
 		}
 
 		if (game->player.move[0]&&game->player.move[1]) {
-			Vec2f_multiply(&nv, 0.75);
+			Vec2f_multiply(&nv, 0.7);
 		}
 
 		game->player.vx = nv.x;
