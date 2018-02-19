@@ -16,7 +16,7 @@
 #define GAME_MOVE_SPEED 8
 #define GAME_SPRINT_SPEED 16
 #define GAME_MOVE_DECELERATE 1.06
-#define GAME_MOUSE_SPEED 0.6
+#define GAME_MOUSE_SPEED 0.3
 
 #define GAME_BOBBLE 8
 #define GAME_BOBBLE_SPEED 1.2
@@ -38,6 +38,12 @@ typedef struct {
 } Vec2f;
 
 typedef struct {
+	unsigned int r;
+	unsigned int g;
+	unsigned int b;
+} Color;
+
+typedef struct {
 	float x; float vx;
 	float y; float vy;
 	float a; 
@@ -45,6 +51,7 @@ typedef struct {
 	float bobble_moved;
 	float bobble_amount;
 	char move[2];
+	char mouse;
 } Player;
 
 typedef struct {
@@ -69,6 +76,8 @@ typedef struct {
 	Map map;
 	Minimap minimap;
 
+	Color colors[2];
+
 	int state;
 	bool locked;
 
@@ -76,6 +85,14 @@ typedef struct {
 	double dt;
 	clock_t dtc;
 } Game;
+
+Color rgb(int r, int g, int b) {
+	Color color;
+	color.r = r;
+	color.g = g;
+	color.b = b;
+	return color;
+}
 
 void loadMap(Game* game) {
 	// reading map from file
@@ -174,6 +191,11 @@ void initGame(Game* game) {
 		game->player.speed = GAME_MOVE_SPEED;
 		game->player.bobble_moved = 0;
 		game->player.bobble_amount = 0;
+		game->player.mouse = 0;
+
+		// define colors
+		game->colors[1] = rgb(255,255,255);
+		game->colors[2] = rgb(255,0,0);
 
 		memset(game->player.move, 0, sizeof(char)*2);
 		game->player.a = MATH_PI*0.65;
@@ -225,6 +247,12 @@ void drawGradientV(
 
 }
 
+int l255(int c) {
+	if (c<0) c = 0; return c;
+	if (c>255) c = 255; return c;
+	return c;
+}
+
 void draw(Game* game) {
 	SDL_SetRenderDrawColor(game->renderer, 0,0,0,255);
 	SDL_RenderClear(game->renderer);
@@ -254,7 +282,6 @@ void draw(Game* game) {
 		float ra = (screen_x-WINDOW_WIDTH/2)*(MATH_PI/WINDOW_WIDTH*FOV/180); // ray angle
 		//float rl = 1/cos(ra); // ray length 
 
-
 		Vec2f rd; // ray direcitons 
 		rd.x = sin(game->player.a-ra); // *rl
 		rd.y = cos(game->player.a-ra); // *rl
@@ -264,14 +291,18 @@ void draw(Game* game) {
 		rs.x = game->player.x; //-sin(game->player.a)*2;
 		rs.y = game->player.y; //-cos(game->player.a)*2;
 
-
 		float d = 0; // distance
 		Vec2i rp; // ray position
+
+		int material = 0; 
 		while (d<256) {
 			rp.x = rs.x+(rd.x*d);
 			rp.y = rs.y+(rd.y*d);
 
-			if (game->map.data[rp.x+rp.y*game->map.width]>0) break;
+			if (game->map.data[rp.x+rp.y*game->map.width]>0) {
+				material = game->map.data[rp.x+rp.y*game->map.width];
+				break;
+			}
 			d+=0.02;
 		}
 
@@ -280,7 +311,12 @@ void draw(Game* game) {
 		int c = d*10;
 		if (c>255) c = 255;
 
-		SDL_SetRenderDrawColor(game->renderer, 255-c, 255-c, 255-c, 255);
+		if (material>0) {
+			Color mc = game->colors[material];
+			SDL_SetRenderDrawColor(game->renderer, 
+				l255(mc.r-c), l255(mc.g-c), l255(mc.b-c), 255);
+		}
+
 		drawRect(game->renderer,
 			screen_x*WINDOW_SIZE, 
 			d_pos + game->player.bobble_amount*GAME_BOBBLE*WINDOW_SIZE,
@@ -308,9 +344,10 @@ void draw(Game* game) {
 			++map_y;
 		}
 
+		Color c = game->colors[game->map.data[i]];
 		switch (game->map.data[i]) {
-			case 1: SDL_SetRenderDrawColor(game->renderer, 255, 255, 255, 255); break;
-			default: SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255); break;
+			case 0: SDL_SetRenderDrawColor(game->renderer, 0, 0, 0, 255); break;
+			default: SDL_SetRenderDrawColor(game->renderer, c.r, c.g, c.b, 255); break;
 		}
 
 		drawRect(game->renderer,
@@ -363,6 +400,10 @@ void update(Game* game) {
 					case SDLK_a: game->player.move[1] =  1; break;
 					case SDLK_s: game->player.move[0] = -1; break;
 					case SDLK_d: game->player.move[1] = -1; break;
+					
+					case SDLK_LEFT: game->player.mouse = 1; break;
+					case SDLK_RIGHT: game->player.mouse = -1; break;
+					
 					case SDLK_LSHIFT:
 						game->player.speed = GAME_SPRINT_SPEED;
 						break;
@@ -375,9 +416,14 @@ void update(Game* game) {
 					case SDLK_a: game->player.move[1] = 0; break;
 					case SDLK_s: game->player.move[0] = 0; break;
 					case SDLK_d: game->player.move[1] = 0; break;
+					
+					case SDLK_LEFT: game->player.mouse = 0; break;
+					case SDLK_RIGHT: game->player.mouse = 0; break;
+					
 					case SDLK_LSHIFT:
 						game->player.speed = GAME_MOVE_SPEED;
 						break;
+
 					case SDLK_ESCAPE: 
 						if (game->locked) {
 							game->locked = false;
@@ -437,6 +483,11 @@ void update(Game* game) {
 	game->player.x += game->player.vx;
 	game->player.y += game->player.vy;
 
+	// player camera movement
+	if (game->player.mouse) {
+		game->player.a += game->player.mouse*game->dt*GAME_MOUSE_SPEED*WINDOW_SIZE*12;
+		if (game->player.a>MATH_PI*2) game->player.a = 0;
+	}
 
 	draw(game);
 
