@@ -194,8 +194,8 @@ void initGame(Game* game) {
 		game->player.mouse = 0;
 
 		// define colors
-		game->colors[1] = rgb(255,255,255);
-		game->colors[2] = rgb(255,0,0);
+		game->colors[1] = rgb(140,200,204); // Playful Blue 
+		game->colors[2] = rgb(255,140,140); // Cute Salmon
 
 		memset(game->player.move, 0, sizeof(char)*2);
 		game->player.a = MATH_PI*0.65;
@@ -248,8 +248,8 @@ void drawGradientV(
 }
 
 int l255(int c) {
-	if (c<0) c = 0; return c;
-	if (c>255) c = 255; return c;
+	if (c<0) { c = 0; return c; }
+	if (c>255) { c = 255; return c; }
 	return c;
 }
 
