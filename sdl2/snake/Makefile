@@ -1,22 +1,13 @@
 CC = gcc
-FLAGS = -Wall -lSDL2main -lSDL2
 OUT = snake
 
-all: main.c game.o
-	$(CC) main.c game.o $(FLAGS) -o $(OUT)
+LINKS = -lm -lSDL2main -lSDL2
+ifeq ($(OS),Windows_NT)
+	LINKS = -lmingw32 -lSDL2main -lSDL2
+endif
 
-game.o: game.c game.h text.o
-	$(CC) -c game.c text.o $(FLAGS) 
-
-text.o: text.c text.h
-	$(CC) -c text.c $(FLAGS) 
-
-# Extra
-
-clean:
-	rm -f *.o
+all: main.c
+	$(CC) main.c $(LINKS) -Wall -o "$(OUT)"
 
 run: all
-	./$(OUT)
-
-fresh: clean all
+	"./$(OUT)"
