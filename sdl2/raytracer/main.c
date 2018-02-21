@@ -280,11 +280,11 @@ void draw(Game* game) {
 
 		//float sl = ((float)screen_x/(WINDOW_WIDTH/2))-1; // screen length: -1, 0, 1
 		float ra = (screen_x-WINDOW_WIDTH/2)*(MATH_PI/WINDOW_WIDTH*FOV/180); // ray angle
-		//float rl = 1/cos(ra); // ray length 
+		float rl = 1/cos(ra); // ray length 
 
 		Vec2f rd; // ray direcitons 
-		rd.x = sin(game->player.a-ra); // *rl
-		rd.y = cos(game->player.a-ra); // *rl
+		rd.x = sin(game->player.a-ra)*rl; // *rl
+		rd.y = cos(game->player.a-ra)*rl; // *rl
 
 
 		Vec2f rs; // ray start
