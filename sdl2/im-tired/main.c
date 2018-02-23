@@ -32,7 +32,7 @@ void init(Game* game) {
 
 		game->surface = SDL_GetWindowSurface(game->window);
 
-		game->image[0] = SDL_LoadBMP("brian.bmp");
+		game->image[0] = SDL_LoadBMP("cat.bmp");
 
 		game->start_time = clock();
 		game->state = 1;
@@ -76,7 +76,7 @@ void update(Game* game) {
 	// draw
 
 	// bg
-	//drawBg(game->image[0], game->surface, time);
+	drawBg(game->image[0], game->surface, time);
 
 	// cat
 	drawImage(game->image[0], game->surface, 
