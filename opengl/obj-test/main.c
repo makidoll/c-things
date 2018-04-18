@@ -174,7 +174,7 @@ int main(int argc, char const* argv[]) {
 	Program program;
 	if (init(&program) < 0) return 0;
 
-	Obj object = loadObj("spaceship.obj");
+	Obj object = loadObj("obj/spaceship.obj");
 
 	while (program.state > 0) {
 		update(&program);
