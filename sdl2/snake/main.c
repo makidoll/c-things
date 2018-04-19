@@ -3,11 +3,11 @@
 #include <SDL2/SDL.h>
 
 #define WINDOW_TITLE "Maki's Snake"
-#define WINDOW_WIDTH 32
-#define WINDOW_HEIGHT 32
-#define WINDOW_SIZE 16
-#define GAME_SPEED 1000/15
-#define SNAKE_EXTEND 2
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 640
+#define WINDOW_SIZE 1
+#define GAME_SPEED 1000/120
+#define SNAKE_EXTEND 1000
 
 typedef enum {false, true} bool; 
 
