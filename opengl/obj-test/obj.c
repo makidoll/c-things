@@ -1,59 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "obj.h"
 
-#define MAX_LINE 1000
+typedef enum {false, true} bool;
 
-Obj loadObj(char* path) {
-	Obj obj;
+char const* spaceSep = " ";
+char const* slashSep = "/";
+
+void printVertex(float* vertex) {	
+	printf("v: %2.2f, %2.2f, %2.2f\n", 
+		vertex[0], vertex[1], vertex[2]);
+}
+
+void printFace(int* face) {	
+	printf("f: %d, %d, %d\n", 
+		face[0], face[1], face[2]);
+}
+
+int parseFaceIndex(char* data) {
+	char* tokenPtr;
+	char* token = strtok_r(data, slashSep, &tokenPtr);
+
+	return atoi(token)-1;
+};
+
+void parseLine(char* line, Obj* obj) {
+	char* tokenPtr;
+	char* token = strtok_r(line, spaceSep, &tokenPtr);
+
+	if (strcmp(token, "v")==0) { // vector
+		obj->vertices[obj->totalVertices][0] = atof(strtok_r(NULL, spaceSep, &tokenPtr));
+		obj->vertices[obj->totalVertices][1] = atof(strtok_r(NULL, spaceSep, &tokenPtr));
+		obj->vertices[obj->totalVertices][2] = atof(strtok_r(NULL, spaceSep, &tokenPtr));
+
+		//printVertex(obj->vertices[obj->totalVertices]);
+		obj->totalVertices++;
+		return;
+	}
+
+	if (strcmp(token, "f")==0) { // face
+		obj->faces[obj->totalFaces][0] = parseFaceIndex(strtok_r(NULL, spaceSep, &tokenPtr));
+		obj->faces[obj->totalFaces][1] = parseFaceIndex(strtok_r(NULL, spaceSep, &tokenPtr));
+		obj->faces[obj->totalFaces][2] = parseFaceIndex(strtok_r(NULL, spaceSep, &tokenPtr));
+
+		//printFace(obj->faces[obj->totalFaces]);
+		obj->totalFaces++;
+		return;
+	}
+}
+
+int loadObj(Obj* obj, char* path) {
+	obj->totalVertices = 0;
+	obj->totalFaces = 0;
 
 	FILE* file;
 	file = fopen(path, "r");
 
+	if (!file) {
+		//fprintf(stderr, "Couldn't read %s!\n", path);
+		return -1;
+	}
+
 	char chr;
-	int col = -1;
-	int line = 0;
-
-	// used for reading inbetween spaces
-	char[MAX_LINE] word;
-	word[0] = EOF;
-
-	char type = -1;
+	char col = 0;
+	char line[64];
 
 	while ((chr=getc(file)) != EOF) {
-		if (chr == 10) { // new line
-			line++; 
-			col = -1;
-			type = -1; // reset type indicator
+		if (chr == '\n') {
+			line[col] = 0;
+			parseLine(line, obj);
+			col = 0;
 			continue;
-		}; col++;
+		};
 
-		if (type < 0) {
-			if (
-				chr == 35  || // #: comment
-				chr == 118    // v: vertex
-			) {
-				type = chr;
-				printf("Setting obj type to: %d\n", chr);
-			}
-			continue;
-		}
-
-		switch(type) {
-			case 35: // #: comment
-				continue;
-				break;
-			case 118: // v: vertex
-				printf("\tReading vertice from %d\n", line);
-				break;
-		}
+		line[col] = chr;
+		col++;
 	}
 
-	if (!file) {
-		fprintf(stderr, "Couldn't read %s!\n", path);
-		exit(0);
-	}
+	printf("Loaded: %s\n  %d vertices\n  %d faces\n",
+		path, obj->totalVertices, obj->totalFaces);
 
-	return obj;
+	return 1;
 }

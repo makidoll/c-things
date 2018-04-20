@@ -1,5 +1,5 @@
 CC = gcc
-LDFLAGS = -lGL -lGLEW -lSDL2main -lSDL2
+LDFLAGS = -lm -lGL -lSDL2main -lSDL2
 OUT = obj-test
 
 OBJ = \

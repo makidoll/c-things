@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <SDL2/SDL.h>
 
@@ -51,7 +52,7 @@ typedef struct {
 	SDL_Event event;
 
 	Player player;
-	BUTTON key[10];
+	bool key[10];
 	//Map map;
 
 	int state;
@@ -149,7 +150,7 @@ void draw(Game* game) {
 			Vec3f rp; // ray position
 
 			//int mat = 0;
-			while (d<4) {
+			while (d<16) {
 				rp.x = ro.x+(rd.x*d);
 				rp.y = ro.y+(rd.y*d);
 				rp.z = ro.z+(rd.z*d);
@@ -242,7 +243,7 @@ void update(Game* game) {
 	draw(game);
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
 	Game game;
 	init(&game);
 	

@@ -1,21 +1,14 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-typedef struct { // 3d positional data
-	float x; float y; float z;
-} Vertex;
-
-typedef struct { // indexes to vertices
-	int a; int b; int c;
-} Face;
-
-enum { OBJ_V, OBJ_F };
-
 typedef struct {
-	Vertex* vertex;
-	Face* faces;
+	float vertices[1000][3];
+	int faces[1000][3];
+
+	int totalVertices;
+	int totalFaces;
 } Obj;
 
-Obj loadObj(char* path);
+int loadObj(Obj* obj, char* path);
 
 #endif

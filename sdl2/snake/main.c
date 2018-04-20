@@ -1,13 +1,14 @@
 #include <time.h>
+#include <string.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
 
 #define WINDOW_TITLE "Maki's Snake"
-#define WINDOW_WIDTH 32
-#define WINDOW_HEIGHT 32
-#define WINDOW_SIZE 16
-#define GAME_SPEED 1000/15
-#define SNAKE_EXTEND 2
+#define WINDOW_WIDTH 24
+#define WINDOW_HEIGHT 24
+#define WINDOW_SIZE 32
+#define GAME_SPEED 1000/10
+#define SNAKE_EXTEND 4
 
 typedef enum {false, true} bool; 
 
@@ -179,7 +180,7 @@ void update(Game* game) {
 	SDL_Delay(GAME_SPEED);
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
 	Game game;
 	init(&game);
 
