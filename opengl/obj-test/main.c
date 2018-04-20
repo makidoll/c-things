@@ -171,6 +171,7 @@ void draw(Program* program) {
 		-program->camera.z
 	);
 
+<<<<<<< HEAD
 	// glRotatef(
 	// 	program->camera.rx,
 	// 	program->camera.ry,
@@ -178,6 +179,29 @@ void draw(Program* program) {
 	// 0);
 
 	drawObj(program->obj);
+=======
+	glRotatef(
+		program->camera.rx,
+		program->camera.ry,
+		program->camera.rz,
+	0);
+
+	glBegin(GL_POLYGON);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(-0.5, -0.5, 0.5);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(-0.5, 0.5, 0.5);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(0.5, 0.5, 0.5);
+
+	glColor3f(1.0, 1.0, 1.0);
+	glVertex3f(0.5, -0.5, 0.5);
+
+	glEnd();
+>>>>>>> refs/remotes/origin/master
 
 	glFlush();
 	SDL_GL_SwapWindow(program->window);
@@ -253,12 +277,16 @@ int main(int argc, char const* argv[]) {
 	Program program;
 	if (init(&program) < 0) return 0;
 
+<<<<<<< HEAD
 	Obj obj;
 	if (loadObj(&obj, OBJ_PATH)<0) {
 		printf("Failed to load %s\n", OBJ_PATH);
 		program.state = -1;
 	}
 	program.obj = &obj;
+=======
+	Obj object = loadObj("obj/spaceship.obj");
+>>>>>>> refs/remotes/origin/master
 
 	while (program.state > 0) {
 		update(&program);
