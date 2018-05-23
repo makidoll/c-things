@@ -1,4 +1,4 @@
-# ~~F***-JavaScript~~ Learning C
+# ~~F*** JavaScript~~ Learning C
 ~~> 🖥️ Time to stop writing JavaScript and to start writing C~~
 
 ~~All of these are things I'm making so I can practice writing C.~~
