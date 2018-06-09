@@ -1,9 +1,18 @@
+if (!process.argv[2]) {
+	console.log("node obj [.obj]");
+	return;
+}
+
 var fs = require("fs");
+
+let out =
+	"#ifndef OBJ_H\n"+
+	"#define OBJ_H\n";
 
 let verts = "Vec3f verts[]={";
 let faces = "Vec3i faces[]={";
 
-let map = fs.readFileSync("./map.obj", "utf8");
+let map = fs.readFileSync(process.argv[2], "utf8");
 map.split("\n").forEach((line, i) => {
 	
 	args = line.split(" ");
@@ -20,6 +29,7 @@ map.split("\n").forEach((line, i) => {
 
 });
 
-let out = verts.slice(0, -1)+"};\n"+faces.slice(0, -1)+"};";
+out += verts.slice(0, -1)+"};\n"+faces.slice(0, -1)+"};\n"+
+	"#endif";
 
-fs.writeFileSync("map.c", out);
+fs.writeFileSync("obj.h", out);
