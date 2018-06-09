@@ -5,10 +5,13 @@ ifeq ($(OS),Windows_NT)
 endif
 CFLAGS = -Wall
 OBJ = main.c
-OUT = flight
+OUT = engine
 
 all: $(OBJ)
 	$(CC) $(OBJ) $(CFLAGS) $(LDFLAGS) -o $(OUT)
 
 run: all
 	./$(OUT)
+
+clean:
+	rm -f $(OUT)
